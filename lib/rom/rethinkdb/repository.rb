@@ -31,7 +31,7 @@ module ROM
       # @api public
       def dataset(name)
         rql.db(options[:db]).table(name.to_s).run(connection)
-        datasets[name] = Dataset.new(name, rql, connection)
+        datasets[name] = Dataset.new(rql.table(name.to_s), connection)
       end
 
       # Return dataset with the given name

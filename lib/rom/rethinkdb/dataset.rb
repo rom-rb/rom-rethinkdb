@@ -4,11 +4,10 @@ module ROM
     #
     # @api public
     class Dataset
-      attr_reader :name, :rql, :connection
+      attr_reader :scope, :connection
 
-      def initialize(name, rql, connection)
-        @name = name.to_s
-        @rql = rql
+      def initialize(scope, connection)
+        @scope = scope
         @connection = connection
       end
 
@@ -17,15 +16,15 @@ module ROM
       end
 
       def where(query)
-        rql.table(name).filter(query).run(connection)
+        scope.filter(query).run(connection)
       end
 
       def pluck(*selectors)
-        rql.table(name).pluck(selectors).run(connection)
+        scope.pluck(selectors).run(connection)
       end
 
       def order(condition)
-        rql.table(name).order_by(condition).run(connection)
+        scope.order_by(condition).run(connection)
       end
 
       private
