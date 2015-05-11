@@ -12,25 +12,13 @@ module ROM
       end
 
       def each(&block)
-        with_set { |set| set.each(&block) }
+        scope.run(connection).each(&block)
       end
 
-      def where(query)
-        scope.filter(query).run(connection)
-      end
-
-      def pluck(*selectors)
-        scope.pluck(selectors).run(connection)
-      end
-
-      def order(condition)
-        scope.order_by(condition).run(connection)
-      end
-
-      private
-
-      def with_set
-        yield(query)
+      [:filter, :pluck, :order_by].each do |method_name|
+        define_method(method_name) do |*args|
+          self.class.new(scope.send(method_name, *args), connection)
+        end
       end
     end
   end

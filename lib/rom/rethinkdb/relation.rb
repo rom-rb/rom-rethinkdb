@@ -8,7 +8,17 @@ module ROM
     #
     # @api public
     class Relation < ROM::Relation
-      forward :where, :pluck, :order
+      def filter(*args)
+        __new__(dataset.__send__(__method__, *args))
+      end
+
+      def pluck(*args)
+        __new__(dataset.__send__(__method__, *args))
+      end
+
+      def order_by(*args)
+        __new__(dataset.__send__(__method__, *args))
+      end
     end
   end
 end

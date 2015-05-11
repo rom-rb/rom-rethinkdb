@@ -14,7 +14,7 @@ describe 'RethinkDB repository' do
 
     setup.relation(:users) do
       def with_name(name)
-        where(name: name)
+        filter(name: name)
       end
 
       def only_names
@@ -22,7 +22,11 @@ describe 'RethinkDB repository' do
       end
 
       def by_name
-        order('name')
+        order_by('name')
+      end
+
+      def names_on_street(street)
+        filter(street: street).order_by('name').pluck(:name)
       end
     end
 
@@ -79,6 +83,18 @@ describe 'RethinkDB repository' do
       expect(results[0].name).to eql('Jane')
       expect(results[1].name).to eql('Joe')
       expect(results[2].name).to eql('John')
+    end
+
+    it 'returns data with combined conditions' do
+      results = rom.relation(:users).as(:entity).names_on_street('Main Street').to_a
+
+      expect(results[0].id).to be_nil
+      expect(results[0].name).to eql('Jane')
+      expect(results[0].street).to be_nil
+
+      expect(results[1].id).to be_nil
+      expect(results[1].name).to eql('John')
+      expect(results[1].street).to be_nil
     end
   end
 
