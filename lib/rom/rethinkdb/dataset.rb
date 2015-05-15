@@ -12,8 +12,12 @@ module ROM
         @connection = connection
       end
 
+      def to_a
+        scope.run(connection)
+      end
+
       def each(&block)
-        scope.run(connection).each(&block)
+        to_a.each(&block)
       end
 
       [:filter, :pluck, :order_by].each do |method_name|

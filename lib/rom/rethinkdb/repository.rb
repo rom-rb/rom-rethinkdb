@@ -1,4 +1,5 @@
 require 'rom/rethinkdb/dataset'
+require 'rom/rethinkdb/commands'
 
 module ROM
   module RethinkDB
