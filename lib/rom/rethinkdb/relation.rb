@@ -8,16 +8,20 @@ module ROM
     #
     # @api public
     class Relation < ROM::Relation
-      def filter(*args)
-        __new__(dataset.__send__(__method__, *args))
+      def rql
+        dataset.rql
       end
 
-      def pluck(*args)
-        __new__(dataset.__send__(__method__, *args))
+      def filter(*args, &block)
+        __new__(dataset.__send__(__method__, *args, &block))
       end
 
-      def order_by(*args)
-        __new__(dataset.__send__(__method__, *args))
+      def pluck(*args, &block)
+        __new__(dataset.__send__(__method__, *args, &block))
+      end
+
+      def order_by(*args, &block)
+        __new__(dataset.__send__(__method__, *args, &block))
       end
     end
   end

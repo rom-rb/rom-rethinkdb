@@ -4,10 +4,11 @@ module ROM
     #
     # @api public
     class Dataset
-      attr_reader :scope, :connection
+      attr_reader :scope, :rql, :connection
 
-      def initialize(scope, connection)
+      def initialize(scope, rql, connection)
         @scope = scope
+        @rql = rql
         @connection = connection
       end
 
@@ -16,8 +17,9 @@ module ROM
       end
 
       [:filter, :pluck, :order_by].each do |method_name|
-        define_method(method_name) do |*args|
-          self.class.new(scope.send(method_name, *args), connection)
+        define_method(method_name) do |*args, &block|
+          self.class.new(scope.send(method_name, *args, &block), rql,
+          connection)
         end
       end
     end

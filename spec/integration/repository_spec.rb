@@ -17,6 +17,10 @@ describe 'RethinkDB repository' do
         filter(name: name)
       end
 
+      def only_john_and_jane
+        filter { |user| rql.expr(%w(John Jane)).contains(user["name"]) }
+      end
+
       def only_names
         pluck('name')
       end
@@ -49,9 +53,9 @@ describe 'RethinkDB repository' do
 
     # fill table
     [
-      { id: 1, name: 'John', street: 'Main Street' },
-      { id: 2, name: 'Joe', street: '2nd Street' },
-      { id: 3, name: 'Jane', street: 'Main Street' }
+      { name: 'John', street: 'Main Street' },
+      { name: 'Joe', street: '2nd Street' },
+      { name: 'Jane', street: 'Main Street' }
     ].each do |data|
       repository.send(:rql).table('users').insert(data)
         .run(repository.connection)
@@ -67,6 +71,13 @@ describe 'RethinkDB repository' do
       jane = rom.relation(:users).as(:entity).with_name('Jane').to_a.first
 
       expect(jane.name).to eql('Jane')
+    end
+
+    it 'returns John and Jane objects' do
+      users = rom.relation(:users).as(:entity).only_john_and_jane.to_a
+
+      expect(users.count).to eql(2)
+      expect(users.map(&:name).sort).to eql(%w(Jane John))
     end
 
     it 'returns specified fields' do
@@ -86,7 +97,8 @@ describe 'RethinkDB repository' do
     end
 
     it 'returns data with combined conditions' do
-      results = rom.relation(:users).as(:entity).names_on_street('Main Street').to_a
+      results = rom.relation(:users).as(:entity).names_on_street('Main Street')
+                .to_a
 
       expect(results[0].id).to be_nil
       expect(results[0].name).to eql('Jane')
