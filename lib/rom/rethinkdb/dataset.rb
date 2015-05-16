@@ -20,6 +20,10 @@ module ROM
         to_a.each(&block)
       end
 
+      def count
+        scope.count.run(connection)
+      end
+
       [:filter, :pluck, :order_by].each do |method_name|
         define_method(method_name) do |*args, &block|
           self.class.new(scope.send(method_name, *args, &block), rql,

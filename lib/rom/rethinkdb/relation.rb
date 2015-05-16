@@ -12,6 +12,10 @@ module ROM
         dataset.rql
       end
 
+      def count
+        dataset.count
+      end
+
       def filter(*args, &block)
         __new__(dataset.__send__(__method__, *args, &block))
       end
