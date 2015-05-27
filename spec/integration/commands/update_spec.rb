@@ -4,11 +4,11 @@ require 'virtus'
 describe 'Commands / Updates' do
   subject(:rom) { setup.finalize }
 
-  # If :rethinkdb is not passed in the repository is named `:default`
+  # If :rethinkdb is not passed in the gateway is named `:default`
   let(:setup) { ROM.setup(:rethinkdb, db_options.merge(db: 'test_db')) }
 
   subject(:users) { rom.commands.users }
-  let(:repository) { rom.repositories[:default] }
+  let(:gateway) { rom.gateways[:default] }
 
   before do
     create_table('test_db', 'users')
@@ -42,8 +42,8 @@ describe 'Commands / Updates' do
     [
       { name: 'John', street: 'Main Street' }
     ].each do |data|
-      repository.send(:rql).table('users').insert(data)
-        .run(repository.connection)
+      gateway.send(:rql).table('users').insert(data)
+        .run(gateway.connection)
     end
   end
 
