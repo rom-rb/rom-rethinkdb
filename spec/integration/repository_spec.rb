@@ -2,10 +2,10 @@ require 'spec_helper'
 
 require 'virtus'
 
-describe 'RethinkDB repository' do
+describe 'RethinkDB gateway' do
   include PrepareDB
 
-  let(:repository) { rom.repositories[:default] }
+  let(:gateway) { rom.gateways[:default] }
   let(:setup) { ROM.setup(:rethinkdb, db_options.merge(db: 'test_db')) }
   subject(:rom) { setup.finalize }
 
@@ -57,8 +57,8 @@ describe 'RethinkDB repository' do
       { name: 'Joe', street: '2nd Street' },
       { name: 'Jane', street: 'Main Street' }
     ].each do |data|
-      repository.send(:rql).table('users').insert(data)
-        .run(repository.connection)
+      gateway.send(:rql).table('users').insert(data)
+        .run(gateway.connection)
     end
   end
 
@@ -110,13 +110,13 @@ describe 'RethinkDB repository' do
     end
   end
 
-  describe 'repository#dataset?' do
+  describe 'gateway#dataset?' do
     it 'returns true if a collection exists' do
-      expect(repository.dataset?(:users)).to be(true)
+      expect(gateway.dataset?(:users)).to be(true)
     end
 
     it 'returns false if a does not collection exist' do
-      expect(repository.dataset?(:not_here)).to be(false)
+      expect(gateway.dataset?(:not_here)).to be(false)
     end
   end
 end

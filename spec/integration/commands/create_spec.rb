@@ -4,7 +4,7 @@ require 'virtus'
 describe 'Commands / Create' do
   subject(:rom) { setup.finalize }
 
-  # If :rethinkdb is not passed in the repository is named `:default`
+  # If :rethinkdb is not passed in the gateway is named `:default`
   let(:setup) { ROM.setup(:rethinkdb, db_options.merge(db: 'test_db')) }
 
   subject(:users) { rom.commands.users }

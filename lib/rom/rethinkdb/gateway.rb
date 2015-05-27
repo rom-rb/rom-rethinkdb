@@ -3,8 +3,8 @@ require 'rom/rethinkdb/commands'
 
 module ROM
   module RethinkDB
-    class Repository < ROM::Repository
-      # RethinkDB repository interface
+    class Gateway < ROM::Gateway
+      # RethinkDB gateway interface
       #
       # @overload connect(options)
       #   Connects to database passing options
@@ -12,7 +12,7 @@ module ROM
       #   @param [Hash] options connection options
       #
       # @example
-      #   repository = ROM::RethinkDB::Repository.new({ host: 'localhost',
+      #   gateway = ROM::RethinkDB::Gateway.new({ host: 'localhost',
       #     port: 28015, db: 'database' })
       #
       # @api public
