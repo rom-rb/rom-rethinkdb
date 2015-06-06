@@ -6,13 +6,13 @@ module ROM
     module Commands
       class Delete < ROM::Commands::Delete
         def execute
-          deleted = target.to_a
+          deleted = dataset.to_a
           dataset.scope.delete.run(dataset.connection)
           deleted
         end
 
         def dataset
-          target.dataset
+          relation.dataset
         end
       end
     end

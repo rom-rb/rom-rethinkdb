@@ -57,7 +57,7 @@ describe 'Commands / Updates' do
     expect(element.street).to eql('Main Street')
 
     result = users.try do
-      users.update.by_id(element.id).set(street: '2nd Street')
+      users.update.by_id(element.id).call(street: '2nd Street')
     end
     result = result.value.to_a
     result.each_with_index { |_, index| result[index].delete('id') }
