@@ -5,6 +5,8 @@ module ROM
   module RethinkDB
     module Commands
       class Create < ROM::Commands::Create
+        adapter :rethinkdb
+
         def execute(tuples)
           insert_tuples =  [tuples].flatten.map do |tuple|
             attributes = input[tuple]

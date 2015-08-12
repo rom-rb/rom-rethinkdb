@@ -8,6 +8,8 @@ module ROM
     #
     # @api public
     class Relation < ROM::Relation
+      adapter :rethinkdb
+
       def rql
         dataset.rql
       end

@@ -5,6 +5,8 @@ module ROM
   module RethinkDB
     module Commands
       class Delete < ROM::Commands::Delete
+        adapter :rethinkdb
+
         def execute
           deleted = dataset.to_a
           dataset.scope.delete.run(dataset.connection)

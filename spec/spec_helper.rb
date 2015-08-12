@@ -23,3 +23,5 @@ RSpec.configure do |config|
     drop_database('test_db')
   end
 end
+
+ROM.use :auto_registration

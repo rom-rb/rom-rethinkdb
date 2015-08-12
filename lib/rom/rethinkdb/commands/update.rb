@@ -5,6 +5,8 @@ module ROM
   module RethinkDB
     module Commands
       class Update < ROM::Commands::Update
+        adapter :rethinkdb
+
         def execute(tuple)
           attributes = input[tuple]
           validator.call(attributes)
