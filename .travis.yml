@@ -1,5 +1,9 @@
 language: ruby
 bundler_args: --without yard guard benchmarks
+before_script:
+  - sudo add-apt-repository ppa:rethinkdb/ppa -y
+  - sudo apt-get update -q
+  - sudo apt-get install rethinkdb
 script: "bundle exec rake spec"
 rvm:
   - 2.0
