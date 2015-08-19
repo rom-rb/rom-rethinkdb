@@ -1,3 +1,3 @@
-0.0.1 to-be-released
+0.0.1 2015-08-19
 
 First public release \o/
