@@ -1,16 +1,13 @@
 require 'spec_helper'
-
 require 'virtus'
 
 describe 'RethinkDB gateway' do
-  include PrepareDB
-
   let(:gateway) { rom.gateways[:default] }
   let(:setup) { ROM.setup(:rethinkdb, db_options.merge(db: 'test_db')) }
   subject(:rom) { setup.finalize }
 
   before do
-    create_table('test_db', 'users')
+    clean_table('test_db', 'users')
 
     setup.relation(:users) do
       def with_name(name)
@@ -63,7 +60,7 @@ describe 'RethinkDB gateway' do
   end
 
   after do
-    drop_table('test_db', 'users')
+    clean_table('test_db', 'users')
   end
 
   describe 'env#relation' do

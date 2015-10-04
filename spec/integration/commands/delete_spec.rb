@@ -10,7 +10,7 @@ describe 'Commands / Delete' do
   let(:gateway) { rom.gateways[:default] }
 
   before do
-    create_table('test_db', 'users')
+    clean_table('test_db', 'users')
 
     setup.relation(:users) do
       def by_id(id)
@@ -34,7 +34,7 @@ describe 'Commands / Delete' do
   end
 
   after do
-    drop_table('test_db', 'users')
+    clean_table('test_db', 'users')
   end
 
   it 'deletes all tuples in a restricted relation' do
