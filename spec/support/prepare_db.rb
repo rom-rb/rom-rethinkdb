@@ -18,6 +18,7 @@ module PrepareDB
   def clean_table(database, table)
     rql.db(database).table(table).delete.run(connection)
   rescue RethinkDB::RqlOpFailedError
+    nil
   end
 
   def table_exist?(database, table)

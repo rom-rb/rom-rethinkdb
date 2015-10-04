@@ -34,8 +34,8 @@ describe 'RethinkDB gateway' do
         filter(street: street).order_by('name').pluck(:name)
       end
 
-      def undef
-        undef_method(with: 'args')
+      def undefined
+        undfn(with: 'args')
       end
     end
 
@@ -73,15 +73,15 @@ describe 'RethinkDB gateway' do
 
   describe 'env#relation' do
     it 'raise error on undefined method' do
-      message = %|undefined method `undef_method' for r.table("users"):RethinkDB::RQL|
+      message = %|undefined method `undfn' for r.table("users"):RethinkDB::RQL|
 
       expect {
-        rom.relation(:users).undef.to_a
+        rom.relation(:users).undefined.to_a
       }.to raise_error(NoMethodError, message)
     end
 
     it 'return data by primary key' do
-      pk = rom.relation(:users).to_a.map {|o| o.fetch('id') }.first
+      pk = rom.relation(:users).to_a.map { |o| o.fetch('id') }.first
       user = rom.relation(:users).as(:entity).by_id(pk).one
 
       expect(user.id).to eq(pk)

@@ -21,10 +21,11 @@ module ROM
       end
 
       def method_missing(command, *args, &block)
-        self.class.new(scope.public_send(command, *args, &block), rql, connection)
+        self.class.new(scope.public_send(command, *args, &block),
+          rql, connection)
       end
 
-    private
+      private
 
       def wrap_array(object)
         return [object] if object.is_a?(Hash)
