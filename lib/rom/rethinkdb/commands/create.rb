@@ -14,21 +14,20 @@ module ROM
             attributes.to_h
           end
 
-          insert(insert_tuples)
+          pks = insert(insert_tuples)
+          get_by_pks(pks)
         end
 
         def insert(tuples)
-          pks = get_pks(tuples)
-
-          dataset.filter do |user|
-            relation.rql.expr(pks).contains(user['id'])
-          end.to_a
-        end
-
-        def get_pks(tuples)
           dataset.scope.insert(tuples)
             .run(dataset.connection)
             .fetch('generated_keys')
+        end
+
+        def get_by_pks(pks)
+          dataset.filter do |user|
+            relation.rql.expr(pks).contains(user['id'])
+          end.to_a
         end
 
         def dataset
