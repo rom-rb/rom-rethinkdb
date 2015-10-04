@@ -13,22 +13,25 @@ module ROM
       end
 
       def to_a
-        scope.run(connection)
+        wrap_array(scope.run(connection))
       end
 
       def each(&block)
         to_a.each(&block)
       end
 
-      def count
-        scope.count.run(connection)
+      def method_missing(command, *args, &block)
+        self.class.new(scope.public_send(command, *args, &block), rql, connection)
       end
 
-      [:filter, :pluck, :order_by].each do |method_name|
-        define_method(method_name) do |*args, &block|
-          self.class.new(scope.send(method_name, *args, &block), rql,
-          connection)
-        end
+    private
+
+      def wrap_array(object)
+        return [object] if object.is_a?(Hash)
+        return object if object.is_a?(Array)
+        return [] if object.nil?
+
+        object.to_a
       end
     end
   end
