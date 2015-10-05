@@ -8,21 +8,26 @@ module ROM
         adapter :rethinkdb
 
         def execute(tuples)
-          insert_tuples =  [tuples].flatten.map do |tuple|
+          insert_tuples = [tuples].flatten.map do |tuple|
             attributes = input[tuple]
             validator.call(attributes)
             attributes.to_h
           end
 
-          insert(insert_tuples)
+          pks = insert(insert_tuples)
+          get_by_pks(pks)
         end
 
         def insert(tuples)
-          pks = dataset.scope.insert(tuples)
-                .run(dataset.connection)["generated_keys"]
+          dataset.scope.insert(tuples)
+            .run(dataset.connection)
+            .fetch('generated_keys')
+        end
 
-          dataset.filter { |user| relation.rql.expr(pks).contains(user["id"]) }
-            .to_a
+        def get_by_pks(pks)
+          dataset.filter do |user|
+            relation.rql.expr(pks).contains(user['id'])
+          end.to_a
         end
 
         def dataset

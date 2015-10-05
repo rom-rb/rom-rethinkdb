@@ -15,19 +15,11 @@ module ROM
       end
 
       def count
-        dataset.count
+        dataset.to_a.count
       end
 
-      def filter(*args, &block)
-        __new__(dataset.__send__(__method__, *args, &block))
-      end
-
-      def pluck(*args, &block)
-        __new__(dataset.__send__(__method__, *args, &block))
-      end
-
-      def order_by(*args, &block)
-        __new__(dataset.__send__(__method__, *args, &block))
+      def method_missing(command, *args, &block)
+        __new__(dataset.public_send(command, *args, &block))
       end
     end
   end

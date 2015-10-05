@@ -1,31 +1,24 @@
 module PrepareDB
   def create_database(database)
-    drop_database(database)
-
     rql.db_create(database).run(connection)
   end
 
   def drop_database(database)
-    database_exist?(database) && rql.db_drop(database).run(connection)
-  end
-
-  def database_exist?(database)
-    database_list.include?(database.to_s)
-  end
-
-  def database_list
-    rql.db_list.run(connection)
+    rql.db_drop(database).run(connection)
   end
 
   def create_table(database, table)
-    drop_table(database, table)
-    rql.db(database).table_create(table).run(connection)
+    if table_exist?(database, table)
+      clean_table(database, table)
+    else
+      rql.db(database).table_create(table).run(connection)
+    end
   end
 
-  def drop_table(database, table)
-    if table_exist?(database, table)
-      rql.db(database).table_drop(table).run(connection)
-    end
+  def clean_table(database, table)
+    rql.db(database).table(table).delete.run(connection)
+  rescue RethinkDB::RqlOpFailedError
+    nil
   end
 
   def table_exist?(database, table)

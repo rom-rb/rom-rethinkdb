@@ -13,13 +13,14 @@ require 'rom-rethinkdb'
 require_relative 'support/prepare_db'
 
 RSpec.configure do |config|
-  config.include PrepareDB
+  include PrepareDB
 
-  config.before(:all) do
+  config.before(:suite) do
     create_database('test_db')
+    create_table('test_db', 'users')
   end
 
-  config.after(:all) do
+  config.after(:suite) do
     drop_database('test_db')
   end
 end

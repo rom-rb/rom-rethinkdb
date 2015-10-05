@@ -10,7 +10,7 @@ describe 'Commands / Create' do
   subject(:users) { rom.commands.users }
 
   before do
-    create_table('test_db', 'users')
+    clean_table('test_db', 'users')
 
     setup.relation(:users)
 
@@ -41,7 +41,7 @@ describe 'Commands / Create' do
   end
 
   after do
-    drop_table('test_db', 'users')
+    clean_table('test_db', 'users')
   end
 
   it 'returns a single tuple when result is set to :one' do

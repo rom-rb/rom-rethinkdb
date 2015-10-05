@@ -31,7 +31,6 @@ module ROM
       #
       # @api public
       def dataset(name)
-        rql.db(options[:db]).table(name.to_s).run(connection)
         datasets[name] = Dataset.new(rql.table(name.to_s), rql, connection)
       end
 
@@ -52,10 +51,7 @@ module ROM
       #
       # @api public
       def dataset?(name)
-        rql.db(options[:db]).table(name.to_s).run(connection)
-        true
-      rescue ::RethinkDB::RqlRuntimeError
-        false
+        rql.db(options[:db]).table_list.run(connection).include?(name.to_s)
       end
 
       # Disconnect from database

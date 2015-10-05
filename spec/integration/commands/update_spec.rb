@@ -11,7 +11,7 @@ describe 'Commands / Updates' do
   let(:gateway) { rom.gateways[:default] }
 
   before do
-    create_table('test_db', 'users')
+    clean_table('test_db', 'users')
 
     setup.relation(:users) do
       def by_id(id)
@@ -48,7 +48,7 @@ describe 'Commands / Updates' do
   end
 
   after do
-    drop_table('test_db', 'users')
+    clean_table('test_db', 'users')
   end
 
   it 'updates everything when there is no original tuple' do

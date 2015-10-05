@@ -1,18 +1,19 @@
 require 'spec_helper'
-
 require 'virtus'
 
 describe 'RethinkDB gateway' do
-  include PrepareDB
-
   let(:gateway) { rom.gateways[:default] }
   let(:setup) { ROM.setup(:rethinkdb, db_options.merge(db: 'test_db')) }
   subject(:rom) { setup.finalize }
 
   before do
-    create_table('test_db', 'users')
+    clean_table('test_db', 'users')
 
     setup.relation(:users) do
+      def by_id(id)
+        get(id)
+      end
+
       def with_name(name)
         filter(name: name)
       end
@@ -31,6 +32,10 @@ describe 'RethinkDB gateway' do
 
       def names_on_street(street)
         filter(street: street).order_by('name').pluck(:name)
+      end
+
+      def undefined
+        undfn(with: 'args')
       end
     end
 
@@ -63,10 +68,23 @@ describe 'RethinkDB gateway' do
   end
 
   after do
-    drop_table('test_db', 'users')
+    clean_table('test_db', 'users')
   end
 
   describe 'env#relation' do
+    it 'raise error on undefined method' do
+      expect {
+        rom.relation(:users).undefined.to_a
+      }.to raise_error(NoMethodError)
+    end
+
+    it 'return data by primary key' do
+      pk = rom.relation(:users).to_a.map { |o| o.fetch('id') }.first
+      user = rom.relation(:users).as(:entity).by_id(pk).one
+
+      expect(user.id).to eq(pk)
+    end
+
     it 'returns mapped object' do
       jane = rom.relation(:users).as(:entity).with_name('Jane').to_a.first
 
