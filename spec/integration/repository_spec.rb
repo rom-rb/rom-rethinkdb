@@ -73,11 +73,9 @@ describe 'RethinkDB gateway' do
 
   describe 'env#relation' do
     it 'raise error on undefined method' do
-      message = %|undefined method `undfn' for r.table("users"):RethinkDB::RQL|
-
       expect {
         rom.relation(:users).undefined.to_a
-      }.to raise_error(NoMethodError, message)
+      }.to raise_error(NoMethodError)
     end
 
     it 'return data by primary key' do
