@@ -16,7 +16,7 @@ module ROM
         end
 
         def update(tuple)
-          dataset.scope.update(tuple).run(dataset.connection)
+          dataset.update(tuple)
           dataset.to_a
         end
 

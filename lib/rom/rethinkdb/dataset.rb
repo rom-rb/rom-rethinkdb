@@ -4,30 +4,42 @@ module ROM
     #
     # @api public
     class Dataset
-      attr_reader :scope, :rql, :connection
+      attr_reader :scope, :rql, :gateway
 
-      def initialize(scope, rql, connection)
+      def initialize(scope, rql, gateway)
         @scope = scope
         @rql = rql
-        @connection = connection
+        @gateway = gateway
       end
 
       def to_a
-        scope.run(connection)
+        gateway.run(scope).to_a
       end
 
       def each(&block)
         to_a.each(&block)
       end
 
+      def insert(tuples)
+        gateway.run(scope.insert(tuples))
+      end
+
+      def delete
+        gateway.run(scope.delete)
+      end
+
+      def update(reql)
+        gateway.run(scope.update(reql))
+      end
+
       def count
-        scope.count.run(connection)
+        gateway.run(scope.count)
       end
 
       [:filter, :pluck, :order_by].each do |method_name|
         define_method(method_name) do |*args, &block|
           self.class.new(scope.send(method_name, *args, &block), rql,
-          connection)
+          gateway)
         end
       end
     end

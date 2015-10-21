@@ -18,8 +18,7 @@ module ROM
         end
 
         def insert(tuples)
-          pks = dataset.scope.insert(tuples)
-                .run(dataset.connection)["generated_keys"]
+          pks = dataset.insert(tuples).fetch("generated_keys")
 
           dataset.filter { |user| relation.rql.expr(pks).contains(user["id"]) }
             .to_a

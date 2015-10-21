@@ -9,7 +9,7 @@ module ROM
 
         def execute
           deleted = dataset.to_a
-          dataset.scope.delete.run(dataset.connection)
+          dataset.delete
           deleted
         end
 

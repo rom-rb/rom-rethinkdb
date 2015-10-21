@@ -10,7 +10,7 @@ describe 'RethinkDB gateway' do
   subject(:rom) { setup.finalize }
 
   before do
-    create_table('test_db', 'users')
+    create_table('test_db', 'users') unless table_exist?('test_db', 'users')
 
     setup.relation(:users) do
       def with_name(name)
@@ -52,18 +52,15 @@ describe 'RethinkDB gateway' do
     end
 
     # fill table
-    [
-      { name: 'John', street: 'Main Street' },
-      { name: 'Joe', street: '2nd Street' },
-      { name: 'Jane', street: 'Main Street' }
-    ].each do |data|
-      gateway.send(:rql).table('users').insert(data)
-        .run(gateway.connection)
-    end
+    insert_data('test_db', 'users', [
+                             { name: 'John', street: 'Main Street' },
+                             { name: 'Joe', street: '2nd Street' },
+                             { name: 'Jane', street: 'Main Street' }
+                         ])
   end
 
   after do
-    drop_table('test_db', 'users')
+    truncate_table('test_db', 'users')
   end
 
   describe 'env#relation' do

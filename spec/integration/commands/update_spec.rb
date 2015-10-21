@@ -11,7 +11,7 @@ describe 'Commands / Updates' do
   let(:gateway) { rom.gateways[:default] }
 
   before do
-    create_table('test_db', 'users')
+    create_table('test_db', 'users') unless table_exist?('test_db', 'users')
 
     setup.relation(:users) do
       def by_id(id)
@@ -39,16 +39,11 @@ describe 'Commands / Updates' do
     end
 
     # fill table
-    [
-      { name: 'John', street: 'Main Street' }
-    ].each do |data|
-      gateway.send(:rql).table('users').insert(data)
-        .run(gateway.connection)
-    end
+    insert_data('test_db', 'users' , { name: 'John', street: 'Main Street' })
   end
 
   after do
-    drop_table('test_db', 'users')
+    truncate_table('test_db', 'users')
   end
 
   it 'updates everything when there is no original tuple' do
