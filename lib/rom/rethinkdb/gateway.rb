@@ -1,8 +1,20 @@
 require 'rom/rethinkdb/dataset'
 require 'rom/rethinkdb/commands'
+require 'connection_pool'
+require 'thread'
 
 module ROM
   module RethinkDB
+    class DatasetCache
+      def initialize
+        @mutex = Mutex.new
+        @datasets = {}
+      end
+
+      def fetch(name)
+        @mutex.synchronize{ @datasets.fetch(name.to_s) { |k| @datasets[k] = yield(k) } }
+      end
+    end
     class Gateway < ROM::Gateway
       # RethinkDB gateway interface
       #
@@ -17,10 +29,12 @@ module ROM
       #
       # @api public
       def initialize(options)
-        @datasets = {}
+        @datasets = DatasetCache.new
         @options = options
         @rql = ::RethinkDB::RQL.new
-        @connection = rql.connect(options)
+        pool_size = options.fetch(:pool_size, 5).to_i
+        options.freeze
+        @connections = ConnectionPool.new(size: pool_size) { rql.connect(options).auto_reconnect(true) }
       end
 
       # Return dataset with the given name
@@ -31,19 +45,18 @@ module ROM
       #
       # @api public
       def dataset(name)
-        rql.db(options[:db]).table(name.to_s).run(connection)
-        datasets[name] = Dataset.new(rql.table(name.to_s), rql, connection)
+        @datasets.fetch(name) { |n| Dataset.new(rql.table(n), rql, self) }
       end
 
-      # Return dataset with the given name
+      alias :[] :dataset
+
+      # Runs the ReQL query and returns the data.
       #
-      # @param [String] name dataset name
+      # @param [RethinkDB::RQL]  query a RQL query
       #
-      # @return [Dataset]
-      #
-      # @api public
-      def [](name)
-        datasets[name.to_s]
+      # @api private
+      def run(query)
+        @connections.with { |c| query.run(c) }
       end
 
       # Check if dataset exists
@@ -52,23 +65,21 @@ module ROM
       #
       # @api public
       def dataset?(name)
-        rql.db(options[:db]).table(name.to_s).run(connection)
-        true
-      rescue ::RethinkDB::RqlRuntimeError
-        false
+        run rql.db(options[:db]).table_list.contains(name.to_s)
       end
 
       # Disconnect from database
       #
       # @api public
       def disconnect
-        connection.close
+        @connections.shutdown(&:close)
+        self
       end
 
       private
 
       # @api private
-      attr_reader :datasets, :options, :rql
+      attr_reader :options, :rql
     end
   end
 end

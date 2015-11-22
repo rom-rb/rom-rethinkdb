@@ -1,4 +1,5 @@
 module PrepareDB
+  extend(self)
   def create_database(database)
     drop_database(database)
 
@@ -26,6 +27,14 @@ module PrepareDB
     if table_exist?(database, table)
       rql.db(database).table_drop(table).run(connection)
     end
+  end
+
+  def insert_data(database, table, data)
+    rql.db(database).table(table).insert(data).run(connection)
+  end
+
+  def truncate_table(database, table)
+    rql.db(database).table(table).delete.run(connection)
   end
 
   def table_exist?(database, table)

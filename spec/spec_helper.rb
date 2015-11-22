@@ -15,12 +15,12 @@ require_relative 'support/prepare_db'
 RSpec.configure do |config|
   config.include PrepareDB
 
-  config.before(:all) do
-    create_database('test_db')
+  config.before(:suite) do
+    PrepareDB.create_database('test_db')
   end
 
-  config.after(:all) do
-    drop_database('test_db')
+  config.after(:suite) do
+    PrepareDB.drop_database('test_db')
   end
 end
 
