@@ -5,14 +5,12 @@ require 'virtus'
 describe 'RethinkDB gateway' do
   include PrepareDB
 
-  let(:gateway) { rom.gateways[:default] }
-  let(:setup) { ROM.setup(:rethinkdb, db_options.merge(db: 'test_db')) }
-  subject(:rom) { setup.finalize }
+  include_context 'db setup'
 
   before do
     create_table('test_db', 'users') unless table_exist?('test_db', 'users')
 
-    setup.relation(:users) do
+    configuration.relation(:users) do
       def with_name(name)
         filter(name: name)
       end
@@ -44,7 +42,7 @@ describe 'RethinkDB gateway' do
       end
     end
 
-    setup.mappers do
+    configuration.mappers do
       define(:users) do
         model(User)
         register_as(:entity)
@@ -65,20 +63,20 @@ describe 'RethinkDB gateway' do
 
   describe 'env#relation' do
     it 'returns mapped object' do
-      jane = rom.relation(:users).as(:entity).with_name('Jane').to_a.first
+      jane = container.relation(:users).as(:entity).with_name('Jane').to_a.first
 
       expect(jane.name).to eql('Jane')
     end
 
     it 'returns John and Jane objects' do
-      users = rom.relation(:users).as(:entity).only_john_and_jane.to_a
+      users = container.relation(:users).as(:entity).only_john_and_jane.to_a
 
       expect(users.count).to eql(2)
       expect(users.map(&:name).sort).to eql(%w(Jane John))
     end
 
     it 'returns specified fields' do
-      user = rom.relation(:users).as(:entity).only_names.to_a.first
+      user = container.relation(:users).as(:entity).only_names.to_a.first
 
       expect(user.id).to be_nil
       expect(user.name).not_to be_nil
@@ -86,7 +84,7 @@ describe 'RethinkDB gateway' do
     end
 
     it 'returns ordered data' do
-      results = rom.relation(:users).as(:entity).by_name.to_a
+      results = container.relation(:users).as(:entity).by_name.to_a
 
       expect(results[0].name).to eql('Jane')
       expect(results[1].name).to eql('Joe')
@@ -94,7 +92,7 @@ describe 'RethinkDB gateway' do
     end
 
     it 'returns data with combined conditions' do
-      results = rom.relation(:users).as(:entity).names_on_street('Main Street')
+      results = container.relation(:users).as(:entity).names_on_street('Main Street')
                 .to_a
 
       expect(results[0].id).to be_nil

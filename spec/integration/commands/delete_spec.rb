@@ -1,24 +1,20 @@
 require 'spec_helper'
 
 describe 'Commands / Delete' do
-  subject(:rom) { setup.finalize }
+  include_context 'db setup'
 
-  # If :rethinkdb is not passed in the gateway is named `:default`
-  let(:setup) { ROM.setup(:rethinkdb, db_options.merge(db: 'test_db')) }
-
-  subject(:users) { rom.commands.users }
-  let(:gateway) { rom.gateways[:default] }
+  let(:users) { container.commands[:users] }
 
   before do
     create_table('test_db', 'users') unless table_exist?('test_db', 'users')
 
-    setup.relation(:users) do
+    configuration.relation(:users) do
       def by_id(id)
         filter(id: id)
       end
     end
 
-    setup.commands(:users) do
+    configuration.commands(:users) do
       define(:delete) do
         result :one
       end
@@ -33,7 +29,7 @@ describe 'Commands / Delete' do
   end
 
   it 'deletes all tuples in a restricted relation' do
-    element = rom.relation(:users).to_a.first
+    element = container.relation(:users).to_a.first
 
     result = users.try { users.delete.by_id(element['id']).call }
     result = result.value
@@ -41,7 +37,7 @@ describe 'Commands / Delete' do
 
     expect(result).to eql('name' => 'John', 'street' => 'Main Street')
 
-    result = rom.relation(:users).to_a
+    result = container.relation(:users).to_a
     expect(result.count).to eql(0)
   end
 end

@@ -2,18 +2,14 @@ require 'spec_helper'
 require 'virtus'
 
 describe 'Commands / Updates' do
-  subject(:rom) { setup.finalize }
+  include_context 'db setup'
 
-  # If :rethinkdb is not passed in the gateway is named `:default`
-  let(:setup) { ROM.setup(:rethinkdb, db_options.merge(db: 'test_db')) }
-
-  subject(:users) { rom.commands.users }
-  let(:gateway) { rom.gateways[:default] }
+  let(:users) { container.commands[:users] }
 
   before do
     create_table('test_db', 'users') unless table_exist?('test_db', 'users')
 
-    setup.relation(:users) do
+    configuration.relation(:users) do
       def by_id(id)
         filter(id: id)
       end
@@ -27,14 +23,14 @@ describe 'Commands / Updates' do
       attribute :street, String
     end
 
-    setup.mappers do
+    configuration.mappers do
       define(:users) do
         model User
         register_as :entity
       end
     end
 
-    setup.commands(:users) do
+    configuration.commands(:users) do
       define(:update)
     end
 
@@ -47,7 +43,7 @@ describe 'Commands / Updates' do
   end
 
   it 'updates everything when there is no original tuple' do
-    element = rom.relation(:users).as(:entity).to_a.first
+    element = container.relation(:users).as(:entity).to_a.first
     expect(element.name).to eql('John')
     expect(element.street).to eql('Main Street')
 

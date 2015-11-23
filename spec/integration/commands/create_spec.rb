@@ -2,17 +2,14 @@ require 'spec_helper'
 require 'virtus'
 
 describe 'Commands / Create' do
-  subject(:rom) { setup.finalize }
+  include_context 'db setup'
 
-  # If :rethinkdb is not passed in the gateway is named `:default`
-  let(:setup) { ROM.setup(:rethinkdb, db_options.merge(db: 'test_db')) }
-
-  subject(:users) { rom.commands.users }
+  let(:users) { container.commands[:users] }
 
   before do
     create_table('test_db', 'users') unless table_exist?('test_db', 'users')
 
-    setup.relation(:users)
+    configuration.relation(:users)
 
     class User
       include Virtus.model
@@ -22,14 +19,14 @@ describe 'Commands / Create' do
       attribute :street, String
     end
 
-    setup.mappers do
+    configuration.mappers do
       define(:users) do
         model User
         register_as :entity
       end
     end
 
-    setup.commands(:users) do
+    configuration.commands(:users) do
       define(:create) do
         result :one
       end
@@ -52,7 +49,7 @@ describe 'Commands / Create' do
     result.delete("id")
     expect(result).to eql('name' => 'John', 'street' => 'Main Street')
 
-    result = rom.relation(:users).as(:entity).to_a
+    result = container.relation(:users).as(:entity).to_a
     expect(result.count).to eql(1)
   end
 
@@ -71,7 +68,7 @@ describe 'Commands / Create' do
       { 'name' => 'Jack', 'street' => 'Main Street' }
     ])
 
-    result = rom.relation(:users).as(:entity).to_a
+    result = container.relation(:users).as(:entity).to_a
     expect(result.count).to eql(2)
   end
 end

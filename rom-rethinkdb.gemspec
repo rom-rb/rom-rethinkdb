@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_runtime_dependency 'rethinkdb'
-  spec.add_runtime_dependency 'rom', '~> 0.9', '>= 0.9.0'
+  spec.add_runtime_dependency 'rom', '~> 1.0.0.beta1'
   spec.add_runtime_dependency 'connection_pool', '>= 0.2'
 
   spec.add_development_dependency 'bundler'

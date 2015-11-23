@@ -10,7 +10,14 @@ end
 
 require 'rom-rethinkdb'
 
-require_relative 'support/prepare_db'
+SPEC_ROOT = root = Pathname(__FILE__).dirname
+
+Dir[root.join('support/*.rb').to_s].each do |f|
+  require f
+end
+Dir[root.join('shared/*.rb').to_s].each do |f|
+  require f
+end
 
 RSpec.configure do |config|
   config.include PrepareDB
@@ -23,5 +30,3 @@ RSpec.configure do |config|
     PrepareDB.drop_database('test_db')
   end
 end
-
-ROM.use :auto_registration
