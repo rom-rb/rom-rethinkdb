@@ -6,7 +6,6 @@ gem 'rom', github: 'rom-rb/rom', branch: 'master'
 
 group :test do
   gem 'virtus'
-  gem 'activesupport'
   gem 'rspec', '~> 3.1'
   gem 'codeclimate-test-reporter', require: false
 end
