@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'virtus'
 
 describe 'Commands / Updates' do
   include_context 'db setup'
@@ -10,23 +9,16 @@ describe 'Commands / Updates' do
     create_table('test_db', 'users') unless table_exist?('test_db', 'users')
 
     configuration.relation(:users) do
+      auto_struct true
+
+      schema do
+        attribute :id, ROM::Types::Integer
+        attribute :name, ROM::Types::String
+        attribute :street, ROM::Types::String
+      end
+
       def by_id(id)
         filter(id: id)
-      end
-    end
-
-    class User
-      include Virtus.model
-
-      attribute :id, Integer
-      attribute :name, String
-      attribute :street, String
-    end
-
-    configuration.mappers do
-      define(:users) do
-        model User
-        register_as :entity
       end
     end
 
@@ -43,17 +35,14 @@ describe 'Commands / Updates' do
   end
 
   it 'updates everything when there is no original tuple' do
-    element = container.relation(:users).as(:entity).to_a.first
+    element = container.relations[:users].to_a.first
     expect(element.name).to eql('John')
     expect(element.street).to eql('Main Street')
 
-    result = users.try do
-      users.update.by_id(element.id).call(street: '2nd Street')
-    end
-    result = result.value.to_a
-    result.each_with_index { |_, index| result[index].delete('id') }
+    result = users.update.by_id(element.id).call(street: '2nd Street')
+    result.each_with_index { |_, index| result[index].delete(:id) }
 
     expect(result)
-      .to match_array([{ 'name' => 'John', 'street' => '2nd Street' }])
+      .to match_array([{ name: 'John', street: '2nd Street' }])
   end
 end

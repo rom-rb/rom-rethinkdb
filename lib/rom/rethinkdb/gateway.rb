@@ -2,20 +2,14 @@ require 'rom/rethinkdb/dataset'
 require 'rom/rethinkdb/commands'
 require 'connection_pool'
 require 'thread'
+require 'dry/core/cache'
 
 module ROM
   module RethinkDB
-    class DatasetCache
-      def initialize
-        @mutex = Mutex.new
-        @datasets = {}
-      end
-
-      def fetch(name)
-        @mutex.synchronize{ @datasets.fetch(name.to_s) { |k| @datasets[k] = yield(k) } }
-      end
-    end
     class Gateway < ROM::Gateway
+      extend Dry::Core::Cache
+      adapter :rethinkdb
+
       # RethinkDB gateway interface
       #
       # @overload connect(options)
@@ -29,7 +23,6 @@ module ROM
       #
       # @api public
       def initialize(options)
-        @datasets = DatasetCache.new
         @options = options
         @rql = ::RethinkDB::RQL.new
         pool_size = options.fetch(:pool_size, 5).to_i
@@ -45,7 +38,7 @@ module ROM
       #
       # @api public
       def dataset(name)
-        @datasets.fetch(name) { |n| Dataset.new(rql.table(n), rql, self) }
+        fetch_or_store(name) { Dataset.new(rql.table(name), rql, self) }
       end
 
       alias :[] :dataset

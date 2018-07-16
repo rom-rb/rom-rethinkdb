@@ -8,9 +8,7 @@ module ROM
         adapter :rethinkdb
 
         def execute(tuple)
-          attributes = input[tuple]
-          validator.call(attributes)
-          tuple = attributes.to_h
+          tuple = input[tuple].to_h
 
           update(tuple)
         end

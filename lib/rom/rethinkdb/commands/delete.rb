@@ -8,13 +8,9 @@ module ROM
         adapter :rethinkdb
 
         def execute
-          deleted = dataset.to_a
-          dataset.delete
+          deleted = relation.to_a
+          source.dataset.delete
           deleted
-        end
-
-        def dataset
-          relation.dataset
         end
       end
     end
