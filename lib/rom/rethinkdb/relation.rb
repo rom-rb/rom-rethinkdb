@@ -8,26 +8,16 @@ module ROM
     #
     # @api public
     class Relation < ROM::Relation
+      extend Forwardable
+
       adapter :rethinkdb
 
-      def rql
-        dataset.rql
-      end
+      forward :filter, :pluck, :order_by
 
-      def count
-        dataset.count
-      end
+      def_instance_delegators :dataset, :rql, :count
 
-      def filter(*args, &block)
-        __new__(dataset.__send__(__method__, *args, &block))
-      end
-
-      def pluck(*args, &block)
-        __new__(dataset.__send__(__method__, *args, &block))
-      end
-
-      def order_by(*args, &block)
-        __new__(dataset.__send__(__method__, *args, &block))
+      def pluck(*names)
+        new(dataset.pluck(*names), schema: schema.project(*names))
       end
     end
   end

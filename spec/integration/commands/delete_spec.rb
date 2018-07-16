@@ -29,15 +29,14 @@ describe 'Commands / Delete' do
   end
 
   it 'deletes all tuples in a restricted relation' do
-    element = container.relation(:users).to_a.first
+    element = container.relations[:users].to_a.first
 
-    result = users.try { users.delete.by_id(element['id']).call }
-    result = result.value
-    result.delete('id')
+    result = users.delete.by_id(element[:id]).call
+    result.delete(:id)
 
-    expect(result).to eql('name' => 'John', 'street' => 'Main Street')
+    expect(result).to eql(name: 'John', street: 'Main Street')
 
-    result = container.relation(:users).to_a
+    result = container.relations[:users].to_a
     expect(result.count).to eql(0)
   end
 end

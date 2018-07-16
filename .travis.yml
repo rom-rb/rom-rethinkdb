@@ -9,15 +9,15 @@ before_script:
   - sudo /etc/init.d/rethinkdb restart
 script: "bundle exec rake spec"
 rvm:
-  - 2.1.10
-  - 2.2.5
-  - 2.3.1
+  - 2.5.0
+  - 2.4.2
+  - 2.3.6
   - rbx
-  - jruby-9000
+  - jruby-9.1.13.0
 matrix:
   allow_failures:
     - rvm: rbx
-    - rvm: jruby-9000
+    - rvm: jruby-9.1.13.0
 notifications:
   webhooks:
     urls:

@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'virtus'
 
 describe 'Commands / Create' do
   include_context 'db setup'
@@ -9,20 +8,11 @@ describe 'Commands / Create' do
   before do
     create_table('test_db', 'users') unless table_exist?('test_db', 'users')
 
-    configuration.relation(:users)
-
-    class User
-      include Virtus.model
-
-      attribute :id, Integer
-      attribute :name, String
-      attribute :street, String
-    end
-
-    configuration.mappers do
-      define(:users) do
-        model User
-        register_as :entity
+    configuration.relation(:users) do
+      schema do
+        attribute :id, ROM::Types::Integer
+        attribute :name, ROM::Types::String
+        attribute :street, ROM::Types::String
       end
     end
 
@@ -42,33 +32,27 @@ describe 'Commands / Create' do
   end
 
   it 'returns a single tuple when result is set to :one' do
-    result = users.try do
-      users.create.call('name' => 'John', 'street' => 'Main Street')
-    end
-    result = result.value
-    result.delete("id")
-    expect(result).to eql('name' => 'John', 'street' => 'Main Street')
+    result = users.create.call('name' => 'John', 'street' => 'Main Street')
+    result.delete(:id)
+    expect(result).to eql(name: 'John', street: 'Main Street')
 
-    result = container.relation(:users).as(:entity).to_a
+    result = container.relations[:users].to_a
     expect(result.count).to eql(1)
   end
 
   it 'returns tuples when result is set to :many' do
-    result = users.try do
-      users.create_many.call([
-        { 'name' => 'Jane', 'street' => 'Main Street' },
-        { 'name' => 'Jack', 'street' => 'Main Street' }
-      ])
-    end
-    result = result.value.to_a
-    result.each_with_index { |_, index| result[index].delete('id') }
-
-    expect(result).to match_array([
+    result = users.create_many.call([
       { 'name' => 'Jane', 'street' => 'Main Street' },
       { 'name' => 'Jack', 'street' => 'Main Street' }
     ])
+    result.each_with_index { |_, index| result[index].delete(:id) }
 
-    result = container.relation(:users).as(:entity).to_a
+    expect(result).to match_array([
+      { name: 'Jane', street: 'Main Street' },
+      { name: 'Jack', street: 'Main Street' }
+    ])
+
+    result = container.relations[:users].to_a
     expect(result.count).to eql(2)
   end
 end
